@@ -4,7 +4,7 @@ ASUS TUF Gaming F15 **FX506LU** için OpenCore EFI'si. macOS 15.5 Sequoia'da tes
 Güncel sürüm, [nullmoth/nvidia-macos-driver](https://github.com/nullmoth/nvidia-macos-driver) ile
 GTX 1660 Ti'yi (HDMI çıkışı üzerinden) Metal 3 hızlandırmayla çalıştıracak şekilde ayarlıdır.
 
-![Sistem bilgisi: GTX 1660 Ti, 6 GB, Metal 3](docs/sistem-bilgisi.png)
+![GTX 1660 Ti, 6 GB, Metal 3: Sistem Bilgisi ve Bu Mac Hakkında](docs/sistem-bilgisi.png)
 
 > ⚠️ **SMBIOS bilgileri boştur.** Kullanmadan önce [GenSMBIOS](https://github.com/corpnewt/GenSMBIOS)
 > ile kendi seri numaranızı, MLB, SystemUUID ve ROM değerlerinizi üretip `PlatformInfo` altındaki
