@@ -1,0 +1,9 @@
+.DS_Store
+._*
+.contentVisibility
+System Volume Information/
+opencore-*.txt
+nvram.plist
+SysReport/
+*.bak
+oldConfig.plist
