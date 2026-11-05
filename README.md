@@ -24,7 +24,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 |---|---|---|
 | CPU | Intel Core i5-10300H (Comet Lake) | ✅ |
 | iGPU | Intel UHD 630 (`0x3E9B0000`) | ✅ Dahili 1080p 144 Hz ekran |
-| dGPU | NVIDIA GTX 1660 Ti Mobile (TU116, `10de:2191`) | ✅ nullmoth 2.6.6 ile, yalnızca HDMI |
+| dGPU | NVIDIA GTX 1660 Ti Mobile (TU116, `10de:2191`) | ✅ nullmoth 2.7.2 ile, yalnızca HDMI |
 | RAM | 16 GB | ✅ |
 | SSD | Crucial MX500 (SATA) | ✅ |
 | Ethernet | Realtek RTL8111 | ✅ |
@@ -32,6 +32,8 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 | Ses | Realtek ALC (layout-id 17) | ✅ |
 | Touchpad | I2C HID (VoodooI2C) | ✅ |
 | Klavye ışığı / Fn tuşları | AsusSMC, BrightnessKeys, KBColor | ✅ |
+| Fan modları (Fn+F5: sessiz / normal / turbo) | SSDT-FANM, KBColor | ✅ |
+| Dahili ekran parlaklığı | SSDT-PNLF, WhateverGreen `applbkl` | ✅ |
 | Pil | SMCBatteryManager + ECEnabler | ✅ |
 
 ## OpenCore ve kextler
@@ -55,7 +57,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 | AsusSMC | 1.4.1 |
 | BrightnessKeys | 1.0.3 |
 | USBMap | 1.0 (bu makineye özel) |
-| KBColor | 1.0.0 (klavye ışığı rengi, kendi kextim) |
+| KBColor | 1.1.0 (klavye ışığı rengi, fan modu, sensörler; kendi kextim) |
 
 Sürücüler: OpenRuntime, OpenCanopy, OpenHfsPlus, ResetNvramEntry.
 
@@ -67,7 +69,10 @@ dahili ekran Intel'de kalır.
 
 NVIDIA için yapılan ayarlar:
 
-- `ACPI > Add > SSDT-dGPU-Off.aml` **kapalı** (dosya duruyor)
+- `ACPI > Add > SSDT-dGPU-Off.aml` **kapalı** (dosya duruyor), onun üç ACPI yeniden adlandırması
+  (`_PTS`, `_WAK`, `EC0._REG`) da kapalı
+- `DeviceProperties` > iGPU (`PciRoot(0x0)/Pci(0x2,0x0)`): `applbkl = 01000000`. NVIDIA açıkken
+  WhateverGreen dahili panelin parlaklık yamasını kendiliğinden atlıyor; bu olmadan parlaklık ayarı görünmez.
 - `-wegnoegpu` kaldırıldı
 - boot-args: `nvfb=1 nvaccel=1 nvfbheads=4 -nvkmsnosmooth gfxrst=4 amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0`
 - `Kernel > Block`: `com.apple.iokit.IONDRVSupport` (Exclude)
@@ -85,11 +90,36 @@ NVIDIA için yapılan ayarlar:
    paketini indirin, `SHA256SUMS` ile doğrulayın.
 3. Önce test modu: `sudo CHECK=1 ./install.sh`, ardından `sudo ./install.sh`.
 4. Gizlilik ve Güvenlik'ten izin verin, iki kez yeniden başlatın. HDMI'ye monitör bağlı olsun.
+5. İsteğe bağlı, boştaki ısı için: `/Library/GPUBundles/nvmtl/nvrm610.conf` dosyasına `BOOST=0`
+   satırını ekleyin. Sürücü kartı varsayılan olarak hep en yüksek hızda (P0) tutuyor; `BOOST=0` ile kart
+   boştayken P8'e iner (~40 °C), yük gelince yine P0'a çıkar (test ettim, performans kaybı yok).
+   Sürücü güncellemelerinde korunması için satırı şu iki işaretin arasına yazın (nullmoth 2.7.2'nin
+   `install.sh`'i bu bölümü geri koyuyor):
+
+   ```
+   # --- my settings, kept on update ---
+   BOOST=0
+   # --- end my settings ---
+   ```
+
+### Kullanım ipuçları
+
+- **Ekranı kopyalarken dahili ekran soluk / aşırı parlaksa:** HDMI ekranına Sistem Ayarları > Ekranlar >
+  Renk Profili'nden **sRGB IEC61966-2.1** verin. Kopyalama modunda görüntü ana ekranın profiline göre
+  hazırlanıyor; TV'nin kendi profili dahili panelin profilinden çok farklı.
+- **Donanım video kodlama (H.264/HEVC):** NVIDIA'nın kodlayıcısı, NVIDIA'nın Metal aygıtını açan
+  uygulamalarda VideoToolbox üzerinden kullanılır, dahili ekrandan çalışırken de. Metal açmayan araçlar
+  (ör. `ffmpeg`) Intel Quick Sync'i kullanır.
+- **Oyunlar ve ağır işler:** uygulamayı HDMI ekranında (ana ekran NVIDIA iken) açın. Dahili ekranda açılan
+  uygulama çoğunlukla Intel'i seçer. Etkinlik Monitörü > Pencere > GPU Geçmişi'nden kontrol edebilirsiniz.
+- **NVIDIA sıcaklığı:** KBColor'ın menüsündeki sensörlerde görünür (sürücü yüklüyken).
 
 ### Bilinen sınırlamalar
 
 - Dahili ekran NVIDIA ile sürülemez (Optimus/MUX desteği yok).
-- Kart boştayken kapanmaz (RTD3/GC6 yok): pil süresi ve ısı kötüleşir.
+- Kart boştayken tamamen kapanmaz (RTD3/GC6 yok). `BOOST=0` ile P8'de bekler; yine de pil süresi
+  NVIDIA'sız EFI'ye göre kısadır. Kartı boştayken kapatma üzerinde kişisel olarak çalışıyorum; bu EFI'de
+  ve sürücü paketinde yok.
 - ReBAR yok, BAR1 256 MB. Benzer sistemlerde panic bildirilmiş
   ([nullmoth#451](https://github.com/nullmoth/nvidia-macos-driver/issues/451)).
 - Turing desteği sürücü tarafında hâlâ "Pending" durumunda.
@@ -100,6 +130,10 @@ NVIDIA için yapılan ayarlar:
 |---|---|---|
 | Compute (4M × 256 FMA) | 31.5 ms (~205 GFLOPS) | 2.9 ms (~2220 GFLOPS) |
 | Metal 3 / Arg. Buffers Tier 2 / RT | ✅ | ✅ |
+| Geekbench 6 GPU (Metal, nullmoth 2.7.1) | | 51 031 |
+
+Karşılaştırma için aynı kart Windows'ta (NVIDIA'nın kendi sürücüsü, OpenCL) 70 389 alıyor. Fark
+saat hızından değil, sürücüden: yük altında kart macOS'ta da P0'a çıkıyor.
 
 ## BIOS
 
