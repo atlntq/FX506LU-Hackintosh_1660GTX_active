@@ -22,19 +22,27 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 
 | Bileşen | Model | Durum |
 |---|---|---|
-| CPU | Intel Core i5-10300H (Comet Lake) | ✅ |
-| iGPU | Intel UHD 630 (`0x3E9B0000`) | ✅ Dahili 1080p 144 Hz ekran |
-| dGPU | NVIDIA GTX 1660 Ti Mobile (TU116, `10de:2191`) | ✅ nullmoth 2.7.2 ile, yalnızca HDMI |
+| CPU | Intel Core i5-10300H (Comet Lake-H, 4 çekirdek / 8 iş parçacığı) | ✅ Tam güç yönetimi (XCPM) |
+| iGPU | Intel UHD Graphics 630 (`0x3E9B0000`) | ✅ QE/CI, Metal 3, dahili ekranı sürer, parlaklık ayarı (`applbkl`) |
+| dGPU | NVIDIA GeForce GTX 1660 Ti Mobile (TU116, `10de:2191`, 6 GB) | ✅ [nullmoth](https://github.com/nullmoth/nvidia-macos-driver) 2.7.2 ile Metal 3, yalnızca HDMI çıkışı; donanım H.264/HEVC kodlama; boştayken P8 (`BOOST=0`) |
+| Dahili ekran | 15.6" 1920×1080 @ 144 Hz (Intel'e bağlı) | ✅ Doğal çözünürlük ve tazeleme hızı |
+| Harici ekran | HDMI (NVIDIA'ya bağlı) | ✅ 1080p 60 Hz, genişletme ve kopyalama, tak-çıkar |
 | RAM | 16 GB | ✅ |
-| SSD | Crucial MX500 (SATA) | ✅ |
+| SSD (macOS) | JAMESDONKEY JD512 512 GB NVMe | ✅ |
+| Ek disk | Crucial MX500 500 GB (SATA) | ✅ |
+| Ses | Realtek ALC256 (`layout-id` 17) | ✅ Hoparlör, dahili mikrofon, kulaklık |
+| Wi-Fi | Intel Wi-Fi 6 AX201 (CNVi, `8086:06F0`) | ✅ AirportItlwm ile yerli Wi-Fi (menü çubuğu, HeliPort gerekmez) |
+| Bluetooth | Intel AX201 (`8087:0026`) | ✅ Açılıyor, cihaz eşleşiyor |
 | Ethernet | Realtek RTL8111 | ✅ |
-| Wi-Fi / Bluetooth | Intel (AirportItlwm / IntelBluetoothFirmware) | ✅ |
-| Ses | Realtek ALC (layout-id 17) | ✅ |
-| Touchpad | I2C HID (VoodooI2C) | ✅ |
-| Klavye ışığı / Fn tuşları | AsusSMC, BrightnessKeys, KBColor | ✅ |
-| Fan modları (Fn+F5: sessiz / normal / turbo) | SSDT-FANM, KBColor | ✅ |
-| Dahili ekran parlaklığı | SSDT-PNLF, WhateverGreen `applbkl` | ✅ |
-| Pil | SMCBatteryManager + ECEnabler | ✅ |
+| Touchpad | ELAN I2C (`04F3:307A`) | ✅ Çoklu dokunma hareketleri (VoodooI2C) |
+| Klavye | PS/2 | ✅ Fn parlaklık tuşları dahil |
+| Kamera | USB2.0 HD UVC WebCam (`13D3:56A2`) | ✅ (görüntü varsayılan olarak karanlık; pozlamayı CameraController gibi bir uygulamayla ayarlayın) |
+| Pil | — | ✅ Yüzde ve durum |
+| Uyku / uyanma | S3 | ⚠️ NVIDIA açıkken ayrıca test edilmedi |
+| Klavye ışığı | RGB (tek bölge) | ✅ Fn+Yukarı/Aşağı ve Denetim Merkezi ile parlaklık; renk [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#keyboard-backlight) menü uygulamasından |
+| Fan modu | Sessiz / Normal / Turbo | ✅ Fn+F5 veya [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#fan-mode) menüsü; fan hızları, sıcaklıklar (NVIDIA dahil) ve güç tüketimi menüde |
+
+**SMBIOS:** `MacBookPro16,3`
 
 ## OpenCore ve kextler
 
