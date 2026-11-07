@@ -37,7 +37,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 | Touchpad | ELAN I2C (`04F3:307A`) | ✅ Çoklu dokunma hareketleri (VoodooI2C) |
 | Klavye | PS/2 | ✅ Fn parlaklık tuşları dahil |
 | Kamera | USB2.0 HD UVC WebCam (`13D3:56A2`) | ✅ (görüntü varsayılan olarak karanlık; pozlamayı CameraController gibi bir uygulamayla ayarlayın) |
-| Pil | — | ✅ Yüzde ve durum |
+| Pil | — | ✅ Yüzde ve durum; KBColor menüsünde harcanan güç ve kalan süre |
 | Uyku / uyanma | S3 | ⚠️ NVIDIA açıkken ayrıca test edilmedi |
 | Klavye ışığı | RGB (tek bölge) | ✅ Fn+Yukarı/Aşağı ve Denetim Merkezi ile parlaklık; renk [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#keyboard-backlight) menü uygulamasından |
 | Fan modu | Sessiz / Normal / Turbo | ✅ Fn+F5 veya [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#fan-mode) menüsü; fan hızları, sıcaklıklar (NVIDIA dahil) ve güç tüketimi menüde |
@@ -65,7 +65,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 | AsusSMC | 1.4.1 |
 | BrightnessKeys | 1.0.3 |
 | USBMap | 1.0 (bu makineye özel) |
-| KBColor | 1.1.0 (klavye ışığı rengi, fan modu, sensörler; kendi kextim) |
+| KBColor | kext 1.1.0, [uygulama](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh/tree/main/KBColor) 1.4 (klavye ışığı rengi, fan modu, sensörler, NVIDIA ile aç; kendi kextim) |
 
 Sürücüler: OpenRuntime, OpenCanopy, OpenHfsPlus, ResetNvramEntry.
 
@@ -119,7 +119,9 @@ NVIDIA için yapılan ayarlar:
   uygulamalarda VideoToolbox üzerinden kullanılır, dahili ekrandan çalışırken de. Metal açmayan araçlar
   (ör. `ffmpeg`) Intel Quick Sync'i kullanır.
 - **Oyunlar ve ağır işler:** uygulamayı HDMI ekranında (ana ekran NVIDIA iken) açın. Dahili ekranda açılan
-  uygulama çoğunlukla Intel'i seçer. Etkinlik Monitörü > Pencere > GPU Geçmişi'nden kontrol edebilirsiniz.
+  uygulama çoğunlukla Intel'i seçer. Bunu aşmak için KBColor'ın
+  [NVIDIA ile aç](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#open-with-nvidia) listesine ekleyin;
+  uygulama dahili ekranda da NVIDIA ile çizer. Etkinlik Monitörü > Pencere > GPU Geçmişi'nden kontrol edebilirsiniz.
 - **NVIDIA sıcaklığı:** KBColor'ın menüsündeki sensörlerde görünür (sürücü yüklüyken).
 
 ### Bilinen sınırlamalar
