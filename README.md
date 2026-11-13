@@ -24,14 +24,14 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 |---|---|---|
 | CPU | Intel Core i5-10300H (Comet Lake-H, 4 çekirdek / 8 iş parçacığı) | ✅ Tam güç yönetimi (XCPM) |
 | iGPU | Intel UHD Graphics 630 (`0x3E9B0000`) | ✅ QE/CI, Metal 3, dahili ekranı sürer, parlaklık ayarı (`applbkl`) |
-| dGPU | NVIDIA GeForce GTX 1660 Ti Mobile (TU116, `10de:2191`, 6 GB) | ✅ [nullmoth](https://github.com/nullmoth/nvidia-macos-driver) 2.7.2 ile Metal 3, yalnızca HDMI çıkışı; donanım H.264/HEVC kodlama; boştayken P8 (`BOOST=0`) |
+| dGPU | NVIDIA GeForce GTX 1660 Ti Mobile (TU116, `10de:2191`, 6 GB) | ✅ [nullmoth](https://github.com/nullmoth/nvidia-macos-driver) 2.9 ile Metal 3, yalnızca HDMI çıkışı; donanım H.264/HEVC kodlama; HDMI'sız açılışta oyunlar NVIDIA'da çizilip dahili ekrana verilir |
 | Dahili ekran | 15.6" 1920×1080 @ 144 Hz (Intel'e bağlı) | ✅ Doğal çözünürlük ve tazeleme hızı |
-| Harici ekran | HDMI (NVIDIA'ya bağlı) | ✅ 1080p 60 Hz, genişletme ve kopyalama, tak-çıkar |
+| Harici ekran | HDMI (NVIDIA'ya bağlı) | ✅ 1080p 60 Hz, genişletme ve kopyalama (nullmoth 2.9'da TV açılışta takılı olmalı, aşağıya bakın) |
 | RAM | 16 GB | ✅ |
 | SSD (macOS) | JAMESDONKEY JD512 512 GB NVMe | ✅ |
 | Ek disk | Crucial MX500 500 GB (SATA) | ✅ |
-| Ses | Realtek ALC256 (`layout-id` 17) | ✅ Hoparlör, dahili mikrofon, kulaklık |
-| Wi-Fi | Intel Wi-Fi 6 AX201 (CNVi, `8086:06F0`) | ✅ AirportItlwm ile yerli Wi-Fi (menü çubuğu, HeliPort gerekmez) |
+| Ses | Realtek ALC256 (`layout-id` 17) | ✅ Hoparlör, dahili mikrofon, kulaklık (uykudan sonra da, CodecCommander) |
+| Wi-Fi | Intel Wi-Fi 6 AX201 (CNVi, `8086:06F0`) | ✅ AirportItlwm ile yerli Wi-Fi (menü çubuğu, HeliPort gerekmez), **Wi-Fi 6 (802.11ax)** açık (`itlwm_he=1`) |
 | Bluetooth | Intel AX201 (`8087:0026`) | ✅ Açılıyor, cihaz eşleşiyor |
 | Ethernet | Realtek RTL8111 | ✅ |
 | Touchpad | ELAN I2C (`04F3:307A`) | ✅ Çoklu dokunma hareketleri (VoodooI2C) |
@@ -54,6 +54,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 | VirtualSMC / SMCProcessor / SMCBatteryManager | 1.3.8 |
 | WhateverGreen | 1.7.1 |
 | AppleALC | 1.9.8 |
+| CodecCommander | 2.7.3 (uykudan sonra kulaklık sesi) |
 | AMFIPass | 1.4.1 |
 | ECEnabler | 1.0.6 |
 | VoodooPS2Controller | 2.3.7 |
@@ -82,7 +83,13 @@ NVIDIA için yapılan ayarlar:
 - `DeviceProperties` > iGPU (`PciRoot(0x0)/Pci(0x2,0x0)`): `applbkl = 01000000`. NVIDIA açıkken
   WhateverGreen dahili panelin parlaklık yamasını kendiliğinden atlıyor; bu olmadan parlaklık ayarı görünmez.
 - `-wegnoegpu` kaldırıldı
-- boot-args: `nvfb=1 nvaccel=1 nvfbheads=4 -nvkmsnosmooth gfxrst=4 amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0`
+- boot-args: `nvfb=1 nvaccel=1 nvfbheads=4 -nvkmsnosmooth gfxrst=4 amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0 nvrmsettle=10000 itlwm_he=1`
+  - `nvrmsettle=10000`: kartın BAR1 penceresi 256 MB ve taşınamadığı için nullmoth açılışta ekranı devralmadan önce
+    100 saniye bekliyor. Bu laptopta açılış ekranı Intel'in belleğinde olduğu için bekleme gereksiz; bu ayarla 10 saniyeye
+    iniyor (nullmoth'un Turing için normal süresi). nullmoth 2.9'da masaüstünün hangi kartta açılacağı kararı bu
+    beklemeden sonra verildiği için ayar yalnızca açılışı kısaltıyor. 2.7.x'te kullanmayın: orada HDMI takılı açılışta
+    masaüstünü NVIDIA'ya geçiriyor ve titreme / yüksek işlemci kullanımı yapıyordu.
+  - `itlwm_he=1`: Wi-Fi 6 (NVIDIA'sız depodaki gibi).
 - `Kernel > Block`: `com.apple.iokit.IONDRVSupport` (Exclude)
 - `csr-active-config`: `430A0000`, `SecureBootModel`: `Disabled`
 - AMFIPass.kext eklendi
@@ -97,27 +104,37 @@ NVIDIA için yapılan ayarlar:
 2. [nullmoth sürücüsünün](https://github.com/nullmoth/nvidia-macos-driver/releases) release
    paketini indirin, `SHA256SUMS` ile doğrulayın.
 3. Önce test modu: `sudo CHECK=1 ./install.sh`, ardından `sudo ./install.sh`.
-4. Gizlilik ve Güvenlik'ten izin verin, iki kez yeniden başlatın. HDMI'ye monitör bağlı olsun.
-5. İsteğe bağlı, boştaki ısı için: `/Library/GPUBundles/nvmtl/nvrm610.conf` dosyasına `BOOST=0`
-   satırını ekleyin. Sürücü kartı varsayılan olarak hep en yüksek hızda (P0) tutuyor; `BOOST=0` ile kart
-   boştayken P8'e iner (~40 °C), yük gelince yine P0'a çıkar (test ettim, performans kaybı yok).
-   Sürücü güncellemelerinde korunması için satırı şu iki işaretin arasına yazın (nullmoth 2.7.2'nin
-   `install.sh`'i bu bölümü geri koyuyor):
+4. Gizlilik ve Güvenlik'ten izin verin, iki kez yeniden başlatın.
+5. nullmoth 2.9'un `install.sh`'i NVIDIA'nın GPU firmware'ini kurulum sırasında NVIDIA'nın sitesinden indirir
+   (`NVIDIA-Linux-x86_64-620.70.06.run`, yaklaşık 550 MB, SHA-256'sı sabit). İnternet bağlantısı gerekir.
+6. 2.7.x'ten güncelliyorsanız: eskiden önerdiğim `BOOST=0` satırına gerek yok. 2.9 kartı yalnızca iş geldiğinde
+   hızlandırıyor, boştayken kendiliğinden düşük güce iniyor.
 
-   ```
-   # --- my settings, kept on update ---
-   BOOST=0
-   # --- end my settings ---
-   ```
+### Açılış ve ekranlar (nullmoth 2.9)
+
+- **HDMI takılıyken açılış:** masaüstünü NVIDIA çizer, TV 60 Hz çalışır, oyunlar görüntüyü doğrudan TV'ye verir.
+  Dahili ekrana giden görüntü NVIDIA'dan Intel'e işlemciyle kopyalandığı için WindowServer ortalama ~%30 işlemci
+  kullanır (ısı ve pil).
+- **HDMI takılı olmadan açılış:** masaüstü Intel'de kalır, NVIDIA uygulamalara ikinci Metal kartı olarak sunulur
+  (Apple'ın iki kartlı MacBook Pro'larındaki gibi). Oyunlar KBColor'ın *NVIDIA ile aç* menüsüyle NVIDIA'da çizilip
+  dahili ekrana verilir (Optimus benzeri).
+- **2.9'da HDMI'sız açıldıktan sonra TV takılırsa görüntü gelmez:** sürücünün ekran çıkışları açılışta ekran
+  bulamayınca kapanıyor ve sonradan takılan ekranı almıyor (`nvfbhotplugpoll` de çözmedi, üstelik 3 saniyede bir
+  fare takılmasına yol açtı). TV için HDMI takılıyken yeniden başlatın. 2.7.x'te bu durumda TV sonradan takılınca
+  çalışıyordu.
 
 ### Kullanım ipuçları
 
 - **Ekranı kopyalarken dahili ekran soluk / aşırı parlaksa:** HDMI ekranına Sistem Ayarları > Ekranlar >
   Renk Profili'nden **sRGB IEC61966-2.1** verin. Kopyalama modunda görüntü ana ekranın profiline göre
   hazırlanıyor; TV'nin kendi profili dahili panelin profilinden çok farklı.
-- **Donanım video kodlama (H.264/HEVC):** NVIDIA'nın kodlayıcısı, NVIDIA'nın Metal aygıtını açan
-  uygulamalarda VideoToolbox üzerinden kullanılır, dahili ekrandan çalışırken de. Metal açmayan araçlar
-  (ör. `ffmpeg`) Intel Quick Sync'i kullanır.
+- **Donanım video kodlama (H.264/HEVC):** nullmoth 2.9'da NVIDIA'nın kodlayıcısı her programda VideoToolbox
+  üzerinden kullanılır (`h264_videotoolbox` / `hevc_videotoolbox` ile 1080p H.264 1,67x, HEVC 1,03x hız).
+- **Eski uygulamalar çöküyorsa (IORegistryExplorer, VideoProc'ta donanım hızlandırma "Unavailable"):** nullmoth 2.9
+  macOS 15'ten eski sürümlere kart vermiyor; eski SDK ile derlenmiş uygulamalara macOS kendini "10.16" diye tanıttığı
+  için reddediliyorlar ve bu ret uygulamayı çökertiyor. KBColor 1.4 açılışta `SYSTEM_VERSION_COMPAT=0` ayarını
+  veriyor, ondan sonra açılan uygulamalar gerçek sürümü görür. Tek bir uygulama için:
+  `open --env SYSTEM_VERSION_COMPAT=0 -a <Uygulama>`.
 - **Oyunlar ve ağır işler:** uygulamayı HDMI ekranında (ana ekran NVIDIA iken) açın. Dahili ekranda açılan
   uygulama çoğunlukla Intel'i seçer. Bunu aşmak için KBColor'ın
   [NVIDIA ile aç](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#open-with-nvidia) listesine ekleyin;
@@ -126,10 +143,14 @@ NVIDIA için yapılan ayarlar:
 
 ### Bilinen sınırlamalar
 
-- Dahili ekran NVIDIA ile sürülemez (Optimus/MUX desteği yok).
-- Kart boştayken tamamen kapanmaz (RTD3/GC6 yok). `BOOST=0` ile P8'de bekler; yine de pil süresi
-  NVIDIA'sız EFI'ye göre kısadır. Kartı boştayken kapatma üzerinde kişisel olarak çalışıyorum; bu EFI'de
-  ve sürücü paketinde yok.
+- Dahili ekranı NVIDIA doğrudan süremez (MUX yok). NVIDIA'da çizilen görüntü dahili ekrana Intel üzerinden kopyalanır.
+- Kart boştayken tamamen kapanmaz. nullmoth 2.9'da deneysel bir RTD3 seçeneği var (`nvrtd3=1` +
+  `nvrtd3res=`), bu laptopta denenmedi; kendi denememde kartın gücünü kesmek makineyi dondurmuştu. Pil süresi
+  NVIDIA'sız EFI'ye göre kısadır.
+- nullmoth 2.9'un hibrit modu (`nmhybrid`) bu laptopa uymuyor: yalnızca 12. nesil ve sonrası Intel ekran birimlerini
+  destekliyor, UHD 630 daha eski.
+- Asphalt 9 nullmoth 2.9'da 3B sahneyi çizemiyor (shader çevirmeninde ve Mesa'nın Turing derleyicisinde iki hata).
+  Kendi makinemde düzelttim, ama bu kişisel bir derleme; dağıtmıyorum.
 - ReBAR yok, BAR1 256 MB. Benzer sistemlerde panic bildirilmiş
   ([nullmoth#451](https://github.com/nullmoth/nvidia-macos-driver/issues/451)).
 - Turing desteği sürücü tarafında hâlâ "Pending" durumunda.
