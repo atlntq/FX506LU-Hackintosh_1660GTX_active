@@ -107,8 +107,13 @@ NVIDIA için yapılan ayarlar:
 4. Gizlilik ve Güvenlik'ten izin verin, iki kez yeniden başlatın.
 5. nullmoth 2.9'un `install.sh`'i NVIDIA'nın GPU firmware'ini kurulum sırasında NVIDIA'nın sitesinden indirir
    (`NVIDIA-Linux-x86_64-620.70.06.run`, yaklaşık 550 MB, SHA-256'sı sabit). İnternet bağlantısı gerekir.
-6. 2.7.x'ten güncelliyorsanız: eskiden önerdiğim `BOOST=0` satırına gerek yok. 2.9 kartı yalnızca iş geldiğinde
-   hızlandırıyor, boştayken kendiliğinden düşük güce iniyor.
+6. HDMI ile kullanıyorsanız `BOOST=0` ekleyin (her sürücü kurulumundan sonra yeniden; `install.sh` dosyayı siler):
+   `echo "BOOST=0" | sudo tee -a /Library/GPUBundles/nvmtl/nvrm610.conf`, ardından yeniden başlatın.
+   2.9 her programa iş gönderdikçe yenilenen 3 saniyelik bir "tam hız" izni veriyor. HDMI takılıyken masaüstünü
+   NVIDIA çizdiği için WindowServer her karede iş gönderiyor, izin hiç bitmiyor ve kart boşta 1455 MHz / bellek
+   6001 MHz / ~24 W'ta kalıyor. `BOOST=0` ile kart kendi güç yönetimine kalıyor: boşta 360–510 MHz / ~6 W,
+   yükte yine 1900 MHz'e çıkıyor (aynı Metal testinde 240 GB/s ve 4,1 TFLOPS, öncesiyle aynı). HDMI'sız açılışta
+   fark yok (kart zaten ~2 W).
 
 ### Açılış ve ekranlar (nullmoth 2.9)
 
@@ -153,12 +158,16 @@ NVIDIA için yapılan ayarlar:
 - Kart boştayken tamamen kapanmaz. nullmoth 2.9'da deneysel bir RTD3 seçeneği var (`nvrtd3=1` +
   `nvrtd3res=`), bu laptopta denenmedi; kendi denememde kartın gücünü kesmek makineyi dondurmuştu. Pil süresi
   NVIDIA'sız EFI'ye göre kısadır. Ölçtüğüm: boştaki kart 300 MHz'de ~1,5–2 W (kendi sensörü), uyandıktan sonra
-  birkaç saniye 1455 MHz / ~8 W'a çıkıp geri iniyor; tüm sistem boşta pilden ~22 W (çoğu işlemci ve ekran). HDMI takılıyken (masaüstü NVIDIA'da) kart boşta da 1455 MHz /
-  ~24 W'ta, %5 yükte kalıyor; dahili ekrana sürekli kopyalama yüzünden olabilir.
+  birkaç saniye 1455 MHz / ~8 W'a çıkıp geri iniyor; tüm sistem boşta pilden ~22 W (çoğu işlemci ve ekran). HDMI takılıyken (masaüstü NVIDIA'da) kart boşta
+  ~6 W (`BOOST=0` ile; olmadan ~24 W, bkz. Kurulum 6).
 - nullmoth 2.9'un hibrit modu (`nmhybrid`) bu laptopa uymuyor: yalnızca 12. nesil ve sonrası Intel ekran birimlerini
   destekliyor, UHD 630 daha eski.
 - Asphalt 9 nullmoth 2.9'da 3B sahneyi çizemiyor (shader çevirmeninde ve Mesa'nın Turing derleyicisinde iki hata).
   Kendi makinemde düzelttim, ama bu kişisel bir derleme; dağıtmıyorum.
+- Euro Truck Simulator 2 HDMI takılıyken açılınca (ana ekran NVIDIA) grafikleri birkaç dakika sonra bozuluyor
+  (renkli şeritler, yanlış dokular). Oyun OpenGL'de çalışıyor ve macOS'un OpenGL'i ana ekranın kartını kullanıyor;
+  sorun bu yolun NVIDIA'daki halinde, `BOOST` ayarıyla ilgisi yok (iki ayarda da oldu). HDMI'sız açılışta oyun
+  Intel'de sorunsuz. Vulkan modu (`r_device "vk"`) açılışta `VK_FORMAT_UNDEFINED` hatasıyla kapanıyor.
 - ReBAR yok, BAR1 256 MB. Benzer sistemlerde panic bildirilmiş
   ([nullmoth#451](https://github.com/nullmoth/nvidia-macos-driver/issues/451)).
 - Turing desteği sürücü tarafında hâlâ "Pending" durumunda.
