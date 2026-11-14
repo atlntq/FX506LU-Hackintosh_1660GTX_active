@@ -38,7 +38,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 | Klavye | PS/2 | ✅ Fn parlaklık tuşları dahil |
 | Kamera | USB2.0 HD UVC WebCam (`13D3:56A2`) | ✅ (görüntü varsayılan olarak karanlık; pozlamayı CameraController gibi bir uygulamayla ayarlayın) |
 | Pil | — | ✅ Yüzde ve durum; KBColor menüsünde harcanan güç ve kalan süre |
-| Uyku / uyanma | S3 | ⚠️ NVIDIA açıkken ayrıca test edilmedi |
+| Uyku / uyanma | S3 | ✅ Kapak kapatma ve menüden uyku, adaptörde ve pilde (nullmoth 2.9, HDMI'sız açılış): kart ~3 s'de beklemeye geçiyor, uyanınca ~0,8 s'de dönüyor, sensörler ve Metal normal. HDMI takılıyken uyku ayrıca denenmedi |
 | Klavye ışığı | RGB (tek bölge) | ✅ Fn+Yukarı/Aşağı ve Denetim Merkezi ile parlaklık; renk [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#keyboard-backlight) menü uygulamasından |
 | Fan modu | Sessiz / Normal / Turbo | ✅ Fn+F5 veya [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#fan-mode) menüsü; fan hızları, sıcaklıklar ve güç tüketimi menüde; NVIDIA'nın sıcaklığı, gücü, saati ve yükü de |
 
