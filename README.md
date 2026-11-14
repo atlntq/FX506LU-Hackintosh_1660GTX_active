@@ -38,7 +38,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 | Klavye | PS/2 | ✅ Fn parlaklık tuşları dahil |
 | Kamera | USB2.0 HD UVC WebCam (`13D3:56A2`) | ✅ (görüntü varsayılan olarak karanlık; pozlamayı CameraController gibi bir uygulamayla ayarlayın) |
 | Pil | — | ✅ Yüzde ve durum; KBColor menüsünde harcanan güç ve kalan süre |
-| Uyku / uyanma | S3 | ✅ Kapak kapatma ve menüden uyku, adaptörde ve pilde (nullmoth 2.9, HDMI'sız açılış): kart ~3 s'de beklemeye geçiyor, uyanınca ~0,8 s'de dönüyor, sensörler ve Metal normal. HDMI takılıyken uyku ayrıca denenmedi |
+| Uyku / uyanma | S3 | ✅ Kapak kapatma ve menüden uyku, adaptörde ve pilde (nullmoth 2.9, HDMI'sız açılış): kart ~3 s'de beklemeye geçiyor, uyanınca ~0,8 s'de dönüyor, sensörler ve Metal normal. HDMI takılıyken (masaüstü NVIDIA'da) de denendi: TV ve dahili ekran geri geliyor |
 | Klavye ışığı | RGB (tek bölge) | ✅ Fn+Yukarı/Aşağı ve Denetim Merkezi ile parlaklık; renk [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#keyboard-backlight) menü uygulamasından |
 | Fan modu | Sessiz / Normal / Turbo | ✅ Fn+F5 veya [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#fan-mode) menüsü; fan hızları, sıcaklıklar ve güç tüketimi menüde; NVIDIA'nın sıcaklığı, gücü, saati ve yükü de |
 
@@ -153,7 +153,8 @@ NVIDIA için yapılan ayarlar:
 - Kart boştayken tamamen kapanmaz. nullmoth 2.9'da deneysel bir RTD3 seçeneği var (`nvrtd3=1` +
   `nvrtd3res=`), bu laptopta denenmedi; kendi denememde kartın gücünü kesmek makineyi dondurmuştu. Pil süresi
   NVIDIA'sız EFI'ye göre kısadır. Ölçtüğüm: boştaki kart 300 MHz'de ~1,5–2 W (kendi sensörü), uyandıktan sonra
-  birkaç saniye 1455 MHz / ~8 W'a çıkıp geri iniyor; tüm sistem boşta pilden ~22 W (çoğu işlemci ve ekran).
+  birkaç saniye 1455 MHz / ~8 W'a çıkıp geri iniyor; tüm sistem boşta pilden ~22 W (çoğu işlemci ve ekran). HDMI takılıyken (masaüstü NVIDIA'da) kart boşta da 1455 MHz /
+  ~24 W'ta, %5 yükte kalıyor; dahili ekrana sürekli kopyalama yüzünden olabilir.
 - nullmoth 2.9'un hibrit modu (`nmhybrid`) bu laptopa uymuyor: yalnızca 12. nesil ve sonrası Intel ekran birimlerini
   destekliyor, UHD 630 daha eski.
 - Asphalt 9 nullmoth 2.9'da 3B sahneyi çizemiyor (shader çevirmeninde ve Mesa'nın Turing derleyicisinde iki hata).
