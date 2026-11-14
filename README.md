@@ -40,7 +40,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 | Pil | — | ✅ Yüzde ve durum; KBColor menüsünde harcanan güç ve kalan süre |
 | Uyku / uyanma | S3 | ⚠️ NVIDIA açıkken ayrıca test edilmedi |
 | Klavye ışığı | RGB (tek bölge) | ✅ Fn+Yukarı/Aşağı ve Denetim Merkezi ile parlaklık; renk [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#keyboard-backlight) menü uygulamasından |
-| Fan modu | Sessiz / Normal / Turbo | ✅ Fn+F5 veya [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#fan-mode) menüsü; fan hızları, sıcaklıklar (NVIDIA dahil) ve güç tüketimi menüde |
+| Fan modu | Sessiz / Normal / Turbo | ✅ Fn+F5 veya [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#fan-mode) menüsü; fan hızları, sıcaklıklar ve güç tüketimi menüde; NVIDIA'nın sıcaklığı, gücü, saati ve yükü de |
 
 **SMBIOS:** `MacBookPro16,3`
 
@@ -66,7 +66,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 | AsusSMC | 1.4.1 |
 | BrightnessKeys | 1.0.3 |
 | USBMap | 1.0 (bu makineye özel) |
-| KBColor | kext 1.1.0, [uygulama](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh/tree/main/KBColor) 1.4 (klavye ışığı rengi, fan modu, sensörler, NVIDIA ile aç; kendi kextim) |
+| KBColor | kext 1.1.0, [uygulama](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh/tree/main/KBColor) 1.5 (klavye ışığı rengi, fan modu, sensörler, NVIDIA sensörleri, NVIDIA ile aç; kendi kextim) |
 
 Sürücüler: OpenRuntime, OpenCanopy, OpenHfsPlus, ResetNvramEntry.
 
@@ -139,14 +139,21 @@ NVIDIA için yapılan ayarlar:
   uygulama çoğunlukla Intel'i seçer. Bunu aşmak için KBColor'ın
   [NVIDIA ile aç](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#open-with-nvidia) listesine ekleyin;
   uygulama dahili ekranda da NVIDIA ile çizer. Etkinlik Monitörü > Pencere > GPU Geçmişi'nden kontrol edebilirsiniz.
-- **NVIDIA sıcaklığı:** KBColor'ın menüsündeki sensörlerde görünür (sürücü yüklüyken).
+- **NVIDIA sensörleri:** KBColor 1.5'in menüsündeki *Sensörler* bölümünde kartın sıcaklığı, gücü, çekirdek/bellek
+  saati ve yükü görünür (örnek: `NVIDIA GPU: 47 °C · 1.9 W`, `Saat: 300 / 405 MHz · yük %0`). Değerleri kartın kendi
+  sensöründen nullmoth'un `nvmtl-smi` aracının değiştirilmiş hali okur; yalnızca menü açıkken çalışır. Bu okuyucu
+  nullmoth koduna dayandığı için KBColor zip'inde yok, [KBColor](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#open-with-nvidia)
+  sayfasında nasıl ekleneceği yazıyor; olmadan menü yalnızca sıcaklığı gösterir. Not: 2.9'daki `nvmtl-smi` paylaşılan
+  veri bloğunu yazılabilir istediği için "cannot map the shared-data block (0x1f)" hatası verir; salt okunur
+  (`NVOS33_FLAGS_ACCESS_READ_ONLY`) isteyince çalışıyor.
 
 ### Bilinen sınırlamalar
 
 - Dahili ekranı NVIDIA doğrudan süremez (MUX yok). NVIDIA'da çizilen görüntü dahili ekrana Intel üzerinden kopyalanır.
 - Kart boştayken tamamen kapanmaz. nullmoth 2.9'da deneysel bir RTD3 seçeneği var (`nvrtd3=1` +
   `nvrtd3res=`), bu laptopta denenmedi; kendi denememde kartın gücünü kesmek makineyi dondurmuştu. Pil süresi
-  NVIDIA'sız EFI'ye göre kısadır.
+  NVIDIA'sız EFI'ye göre kısadır. Ölçtüğüm: boştaki kart 300 MHz'de ~1,5–2 W (kendi sensörü), uyandıktan sonra
+  birkaç saniye 1455 MHz / ~8 W'a çıkıp geri iniyor; tüm sistem boşta pilden ~22 W (çoğu işlemci ve ekran).
 - nullmoth 2.9'un hibrit modu (`nmhybrid`) bu laptopa uymuyor: yalnızca 12. nesil ve sonrası Intel ekran birimlerini
   destekliyor, UHD 630 daha eski.
 - Asphalt 9 nullmoth 2.9'da 3B sahneyi çizemiyor (shader çevirmeninde ve Mesa'nın Turing derleyicisinde iki hata).
