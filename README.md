@@ -24,7 +24,7 @@ Tüm sürümler: [Releases](../../releases) / [Tags](../../tags)
 |---|---|---|
 | CPU | Intel Core i5-10300H (Comet Lake-H, 4 çekirdek / 8 iş parçacığı) | ✅ Tam güç yönetimi (XCPM) |
 | iGPU | Intel UHD Graphics 630 (`0x3E9B0000`) | ✅ QE/CI, Metal 3, dahili ekranı sürer, parlaklık ayarı (`applbkl`) |
-| dGPU | NVIDIA GeForce GTX 1660 Ti Mobile (TU116, `10de:2191`, 6 GB) | ✅ [nullmoth](https://github.com/nullmoth/nvidia-macos-driver) 2.9 ile Metal 3, yalnızca HDMI çıkışı; donanım H.264/HEVC kodlama; HDMI'sız açılışta oyunlar NVIDIA'da çizilip dahili ekrana verilir |
+| dGPU | NVIDIA GeForce GTX 1660 Ti Mobile (TU116, `10de:2191`, 6 GB) | ✅ [nullmoth](https://github.com/nullmoth/nvidia-macos-driver) 2.9 ile Metal 3, yalnızca HDMI çıkışı; donanım H.264/HEVC kodlama **bozuk çıktı veriyor** (aşağıya bakın); HDMI'sız açılışta oyunlar NVIDIA'da çizilip dahili ekrana verilir |
 | Dahili ekran | 15.6" 1920×1080 @ 144 Hz (Intel'e bağlı) | ✅ Doğal çözünürlük ve tazeleme hızı |
 | Harici ekran | HDMI (NVIDIA'ya bağlı) | ✅ 1080p 60 Hz, genişletme ve kopyalama (nullmoth 2.9'da TV açılışta takılı olmalı, aşağıya bakın) |
 | RAM | 16 GB | ✅ |
@@ -133,13 +133,19 @@ NVIDIA için yapılan ayarlar:
 - **Ekranı kopyalarken dahili ekran soluk / aşırı parlaksa:** HDMI ekranına Sistem Ayarları > Ekranlar >
   Renk Profili'nden **sRGB IEC61966-2.1** verin. Kopyalama modunda görüntü ana ekranın profiline göre
   hazırlanıyor; TV'nin kendi profili dahili panelin profilinden çok farklı.
-- **Donanım video kodlama (H.264/HEVC):** nullmoth 2.9'da NVIDIA'nın kodlayıcısı her programda VideoToolbox
-  üzerinden kullanılır (`h264_videotoolbox` / `hevc_videotoolbox` ile 1080p H.264 1,67x, HEVC 1,03x hız).
-- **Eski uygulamalar çöküyorsa (IORegistryExplorer, VideoProc'ta donanım hızlandırma "Unavailable"):** nullmoth 2.9
+- **Donanım video kodlama (H.264/HEVC) kullanmayın:** nullmoth 2.9 bu kartta NVENC'i VideoToolbox'a kaydediyor
+  ve her program (`h264_videotoolbox` / `hevc_videotoolbox`, VideoProc'un donanım hızlandırması) onu seçiyor; ama
+  çıkan dosya bozuk. Aynı test videosunu kodlayıp geri çözünce: Apple'ın yazılım kodlayıcısı H.264 55 dB, HEVC
+  36 dB; NVENC ile H.264 çözülemiyor ("QP 1497 out of range"), HEVC 10 dB (gri/bozuk görüntü). Kart 1920 MHz'deyken
+  de aynı, yani saat/`BOOST` ile ilgisi yok; Turing'de kodlayıcı NVIDIA'nın kapalı kütüphanesiyle çalışıyor.
+  Dönüştürmeyi yazılım kodlayıcıyla (işlemci) yapın. Daha önce burada yazan hız ölçümü çıktının içeriğini kontrol
+  etmemişti.
+- **Eski uygulamalar çöküyorsa (IORegistryExplorer, VideoProc'un `ffmpeg`'i):** nullmoth 2.9
   macOS 15'ten eski sürümlere kart vermiyor; eski SDK ile derlenmiş uygulamalara macOS kendini "10.16" diye tanıttığı
   için reddediliyorlar ve bu ret uygulamayı çökertiyor. KBColor 1.4 açılışta `SYSTEM_VERSION_COMPAT=0` ayarını
   veriyor, ondan sonra açılan uygulamalar gerçek sürümü görür. Tek bir uygulama için:
-  `open --env SYSTEM_VERSION_COMPAT=0 -a <Uygulama>`.
+  `open --env SYSTEM_VERSION_COMPAT=0 -a <Uygulama>`. VideoProc `ffmpeg`'i ortam değişkenlerini silerek başlattığı
+  için ona ulaşmıyor; `ffmpeg` çökünce VideoProc işlemciyle kodluyor, bu da yukarıdaki nedenle doğru sonuç.
 - **Oyunlar ve ağır işler:** uygulamayı HDMI ekranında (ana ekran NVIDIA iken) açın. Dahili ekranda açılan
   uygulama çoğunlukla Intel'i seçer. Bunu aşmak için KBColor'ın
   [NVIDIA ile aç](https://github.com/atlntq/ASUS-TUF-FX506LU-Hackintosh#open-with-nvidia) listesine ekleyin;
